@@ -66,11 +66,20 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'success', message: 'API is running' });
 });
 
-// For Vercel deployment, use the port they provide or fallback to 5001 (as in .env)
-const PORT = process.env.PORT || 5001;
-const server = app.listen(PORT, () => {
-  console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+// For Vercel deployment, we need to handle port binding differently
+// In Vercel serverless functions, we don't need to explicitly listen on a port
+// Only listen on a port when not in production/Vercel environment
+let server;
+if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
+  const PORT = process.env.PORT || 0; // Use port 0 to let the OS assign an available port
+  server = app.listen(PORT, () => {
+    console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${server.address().port}`);
+  });
+} else {
+  console.log('Running in production/Vercel environment - no explicit port binding needed');
+  // Export the Express API for Vercel serverless deployment
+  module.exports = app;
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
