@@ -66,7 +66,8 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'success', message: 'API is running' });
 });
 
-const PORT = process.env.PORT || 5000;
+// For Vercel deployment, use the port they provide or fallback to 5001 (as in .env)
+const PORT = process.env.PORT || 5001;
 const server = app.listen(PORT, () => {
   console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
